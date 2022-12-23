@@ -6,7 +6,8 @@
 .RData
 
 # User-specific files
-.Ruserdata
+.Ruserdata  
+gttables_repo.Rproj
 
 # Example code in package build process
 *-Ex.R

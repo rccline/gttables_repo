@@ -1,0 +1,362 @@
+---
+title: "Rich Iannone's Intendo Game Project"
+format: html
+editor: visual  
+## https://quarto.org/docs/output-formats/html-code.html  
+
+---
+
+```{r} 
+#| code-fold: true
+#| message: false
+#| 
+library(gt)
+library(tidyverse)
+library(lubridate)
+library(here)
+library(readr)
+
+# https://github.com/rich-iannone/intendo 
+# library(intendo)
+
+## devtools::install_github("rich-iannone/intendo")  
+## The intendo package is not functioning.  Download directly from github:  
+##  https://github.com/rich-iannone/intendo/blob/279afd95298d703a6e3cbbab46f02def0db653c4/data-small/sj_users_daily_small_f.rds 
+
+
+``` 
+
+This document is a tutorial on the {*gt*} package presented by Rich Iannone on March 30, 2022, on YouTube channel *Posit PBC* entitled [Rich Iannone || {gt} Intendo Game Data Project Walkthrough || RStudio](https://www.youtube.com/watch?v=aPRVzk9pvno)  
+
+This tutorial is rendered in Quarto. For a guide to formating Quarto code, click [here](https://quarto.org/docs/output-formats/html-code.html).  Gus Lipkin has a [repository](https://github.com/guslipkin/guslipkin.github.io) dedicated to Quarto.  
+
+::: {.callout-note}
+When rendering this document, I am getting an error on an *unexpected symbol*.  I cannot identify the source of this error. (See Tutorial 46:00/48:20); and Lines 341-352, below. 
+
+`Error`: *unexpected symbol in:
+"    source_notes.background.color = adjust_luminance("LemonChiffon", steps = -0.5)
+    table.border.top.width"*
+:::
+
+
+### Load data 
+
+The data from this tutorial comes from Rich's {*intendo*} package.^[The *intendo* package has data in large to small data set size.  Downloading the "small" dataset is sufficient for this tutorial.] I was unable to load this package.  I accessed the data directly from Rich's GitHub repository which he has in *.RDS* format.^[Download directly from Rich's github repository:  
+*https://github.com/rich-iannone/intendo/blob/279afd95298d703a6e3cbbab46f02def0db653c4/data-small/sj_users_daily_small_f.rds*]  
+
+```{r}
+all_the_revenue <- readRDS(here("data/sj_all_revenue_small.rds"))
+```
+
+For best practice, we do not want more than 50 rows of data, for it to fit on the screen.  
+
+* Make a vector subsetting coutries to consider.  
+* Summarize the revenue for each month  
+* Each player in the game has an ID.  
+* Each session has an ID  
+* Each row is a revenue event  
+* You can buy an *IAP* which is an in-app-purchase with some sort of currency or game item. 
+* Ad views are also a revenue event.  
+* There is a session duration  
+* you can save data by player age  
+* What ad caused you to play the game.  
+* course location data  
+
+**Summarize by Country, Month, Item Type, and Total Revenue**   
+
+
+
+```{r}
+ countries_considered <- c("US", "GB", "DE", "NO", "CA", "IN")
+```
+
+
+
+There is a month name vector in R.  
+```{r}
+#| echo: true 
+
+month.name
+monthnames <- month.name
+```
+
+Subset the month names with just three letters for our table 
+* We need the month names as a list  
+```{r}
+#| echo: true 
+# substr(string, "first letter", "last letter")
+substr(monthnames, 1, 3)
+month_names <- as.list(substr(monthnames, 1, 3) )
+
+```
+
+#### gt has to map the column name with the new label  
+* We need the name of each item of the list as the column name  
+```{r}
+
+names(month_names) <- as.character(1:12)
+```
+
+The {*gt*} package has a *countrypops* dataset which has country names and country codes as well as year and population.  
+
+We are going to do a join and get the two letter country codes from *gt::countrypops*.  
+
+```{r}
+revenue <- all_the_revenue %>% 
+  mutate(month = lubridate::month(time)) %>% 
+  filter(item_type == "iap") %>% 
+  
+  left_join(
+    gt::countrypops %>% 
+      select(country_name, country_code_2) %>% 
+      distinct(),
+    by = c("country" = "country_name")
+  ) %>% 
+  
+  mutate(iap_type = gsub("[0-9]", "", item_name)) %>% 
+  
+  select(
+    country, country_code_2, 
+    month, iap_type, item_revenue
+  ) %>% 
+  filter(country_code_2 %in% countries_considered) %>% 
+  group_by(month, iap_type, country) %>% 
+  summarize(
+    total_rev = sum(item_revenue),
+    .groups = "drop"
+    
+  ) %>% 
+  arrange(month, country, iap_type) %>% 
+
+### months as columns  
+  pivot_wider(names_from = month, values_from = total_rev)  
+
+```
+
+
+```{r}
+revenue <- all_the_revenue %>% 
+  mutate(month = lubridate::month(time)) %>% 
+  filter(item_type == "iap") %>% 
+  
+  left_join(
+    gt::countrypops %>% 
+      select(country_name, country_code_2) %>% 
+      distinct(),
+    by = c("country" = "country_name")
+  ) %>% 
+  
+  mutate(iap_type = gsub("[0-9]", "", item_name)) %>% 
+  
+  select(
+    country, country_code_2, 
+    month, iap_type, item_revenue
+  ) %>% 
+  filter(country_code_2 %in% countries_considered) %>% 
+  group_by(month, iap_type, country_code_2) %>% 
+  summarize(
+    total_rev = sum(item_revenue),
+    .groups = "drop"
+    
+  ) %>% 
+  arrange(month, country_code_2, iap_type) %>% 
+
+### months as columns  
+  pivot_wider(names_from = month, values_from = total_rev) 
+  
+
+```
+Names and countries are great for **grouping**.  
+* rowname_col = "iap_type"  
+* groupname_col = "country"  
+
+* Row_group_order()  to change the order of row groups.  
+
+
+### Groups and ordering of Groups  
+* modified the tutorial code  
+  - named country by country code 
+* Order groups by another vector  
+  - grouped by country, ordered by "coutries_considered"  
+  
+**Note**:  You can break code chunks up and reuse them:  
+  - e.g. {r group_by_vector2, ref.label = 'group_by_vector'} 
+
+### Formatting  
+  * fmt_currency() use_subunits = FALSE  
+  * fmt_missing()  deprecated; use sub_missing(columns = 3:12)  
+  * tab_options(row_group.as_column = TRUE)  
+  * **Change column labels by passing in a list** 
+  * add spanners  
+    - tab_spanner(label = "v1.0", columns = c('1', '2', '3'))  
+  * **add line-breaks**  
+    - subtitle = md("Considers **Top 8** Countries by Overall Revenue *<br /><br />*")  
+### Opt_ functions  
+
+### STYLING  
+  * tab_style 
+    - cell_text() 
+    - locations = cells_body() 
+  * tab_source_note()  
+  * tab_footnote()  
+    - footnote not displaying   
+  * tab_footnote to spanners  
+  * **cols_width()**  
+  * opt_horizontal_padding()  
+  
+  
+  
+  
+  
+    
+    
+
+
+  
+  
+  
+  
+```{r group_by_vector}
+revenue2 <- revenue %>% 
+  rename(country = country_code_2)
+
+revenue2 %>% 
+  gt(rowname_col = "iap_type", groupname_col = "country") %>% 
+  
+  row_group_order(groups = countries_considered) %>% 
+  
+  ### Format the columns but do not show subunits ### 
+  fmt_currency(columns = everything(), use_subunits = FALSE) %>% 
+  
+  ### ERROR:  Could not resolve sub_missing(columns = everything()) ### 
+  ### Solution:  Identify numerical columns  
+  
+  sub_missing(columns = 3:12) %>% 
+  
+  ### Take Row groups and make them columns (0.7.0)
+  
+  tab_options(row_group.as_column = TRUE)  %>% 
+  
+  ### Modify column labels by passing in a list  
+  cols_label(.list = month_names) %>% 
+
+  ### Add spanners ###  
+  ### Note: the numbers are the actual column names  See tutorial: 22:50/49:20  ### 
+  
+  tab_spanner(label = "2015", columns = everything()) %>% 
+  tab_spanner(label = "v1.0", columns = c('1', '2', '3')) %>% 
+   tab_spanner(label = "v1.2", columns = as.character(4:12)) %>% 
+  
+  ### ADD TITLES  ### 
+  
+  tab_header(
+    title = "Revenue Amounts by Country and IAP Type",
+    subtitle = md("Considers **Top 8** Countries by Overall Revenue <br /><br />")
+  )  %>% 
+  
+### ------------- opt_ functions ---------------------------- 
+  opt_align_table_header(align = "left") %>% 
+  tab_stubhead(label = md("Region and <br />IAP Type")) %>% 
+  
+### STYLE ### 
+  tab_style(
+    style = cell_text(size = "smaller"),
+    locations = cells_body()
+  ) %>% 
+
+### Color cells  
+
+  data_color(
+    columns = everything(),
+    colors = scales::col_numeric(
+    ### See 29:01/49:20 for discussion of "Color Alpha"   ### 
+    
+      palette = c("#66FF0000", "#66FF00FF"), 
+      alpha = TRUE, 
+      na.color = "#00BFFF66", 
+      
+      ### Domain is where you choose the limits where you want the colors to go
+      domain = NULL)  
+    ) %>% 
+  
+  tab_source_note(
+    source_note = md(
+      "All revenue figures obtained from daily retrievals from *App Annie APL*"
+    )
+  ) %>% 
+  tab_source_note( 
+    source_note = md(
+      "All reporting shown here was created by the **_Central DS Team_**"
+    )) %>%
+  
+  tab_footnote(
+    footnote = "These figures are $0 or less (due to refunds).", 
+    locations = list(
+      cells_body(columns = '1', rows = is.na('1')),
+      cells_body(columns = '3', rows = is.na('3'))
+      )
+    ) %>% 
+  
+#  tab_footnote(
+#    footnote = md("A surprising jump in **gems** revenue from the previous month"), 
+    ## EXPRESSION round('12') is not accepted.  
+    ## Error in round("12") : non-numeric argument to mathematical function
+    ## Calls: .main ... which -> resolve_rows_l -> <Anonymous> -> <Anonymous>
+#    locations = cells_body(columns = '12', rows = round('12') == 6278)
+#   )
+
+  tab_footnote(
+    footnote = md("The 'v1.0' build used the first version of the offer agent SDK."),
+    locations =  cells_column_spanners(spanners = "v1.0")
+  ) %>% 
+  
+  tab_footnote(
+    footnote = md("The 'v1.2' build added more mmissions and had an updated offer agent SDK."),
+    locations =  cells_column_spanners(spanners = "v1.2")
+  ) %>% 
+  
+  ### ------------Change column widths ### --------------------------------
+  ### px() is the colunn width percentage  
+  ### ------  shrink the first column to 50% and everthing else to 75^  
+
+  cols_width(
+  1 ~ px(50), 
+    everything() ~ px(75)
+  ) %>% 
+  
+  opt_horizontal_padding(scale = 2.5)  %>% 
+  opt_vertical_padding(scale = 0.5) %>% 
+  
+  ### Differentiate categories  
+  tab_style(
+    style = list(
+      cell_text(color = "snow", weight = "bold", align = "right"),
+      cell_fill(color = "SlateGray", alpha = 0.75)
+      ),
+    locations = cells_row_groups()
+  ) %>% 
+  
+  opt_all_caps() %>% 
+  opt_table_font(font = google_font(name = "Karla")) %>% 
+  tab_options(
+    table.background.color = adjust_luminance("LemonChiffon", steps = 2),
+    heading.background.color = "LemonChiffon", 
+    footnotes.background.color = adjust_luminance("LemonChiffon", steps = -0.5),
+    source_notes.background.color = adjust_luminance("LemonChiffon", steps = -0.5),
+    table.border.top.width = px(4),
+    table.border.bottom.width = px(4),
+    footnotes.multiline = FALSE,
+    table_body.hlines.style = "dotted",
+    heading.title.font.size = px(30),
+    heading.subtitle.font.size = px(18) 
+  ) 
+
+```
+
+### Reusing Code Chunks
+```{r group_by_vector2, ref.label = 'group_by_vector', eval=FALSE}
+
+  
+
+```
+

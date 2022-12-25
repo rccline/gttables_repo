@@ -1,3 +1,10 @@
 # gttables_repo
 
-A Repo of tutorials for the gt package.
+This repository is designed to document the tutorials and scripting with Rich Iannone's *gt* package to create tables in *R*.  I frequently publish tables in my work and I find the *gt* package nothing short of amazing to prepare publication quality tables.  The *gt* package is simply too complicated to remember all of the details.  This, and my other repositories help me remember how to use the elements of complicated packages.  
+
+1. The first tutorial was presented in Tom Mock's blog, *The Mockup; 10+ Guidelines for Better Tables in R*.  A supporting the details of Tom Mock's blog, David Keyes and Tom Mock discuss Tom's blog on better tables guidelines in YouTube tutorial on *R for the rest of Us* YouTube channel.  The YouTube tutorial and presentation on the {*gt*} package was presented on December 13, 2022 entitled [*Making high-quality tables in R with the gt package: a conversation with Tom Mock*](https://www.youtube.com/watch?v=dxDeotwylr8).  Tom's blog post is predicated on an article on table guidelines by J.A. Schwabish (2022).^[Schwabish, J. A. (2020). *Ten Guidelines for Better Tables*. Journal of Benefit-Cost Analysis, 11(2), 151–178. https://doi.org/10.1017/bca.2020.11] 
+
+2. The second tutorial on the {*gt*} package was presented by Rich Iannone on March 30, 2022, on YouTube channel *Posit PBC* entitled [Rich Iannone || {gt} Intendo Game Data Project Walkthrough || RStudio](https://www.youtube.com/watch?v=aPRVzk9pvno)  
+
+Robert Cline
+*rccline@fastmail.fm*

@@ -22,7 +22,9 @@ library(annotater) # Annotate Package Load Calls
 
 ```
 
-Tom Mock published a tutorial in *The  * blog demonstrating the *gt* package^[Developed by Richard Iannone, Joe Cheng, Barret Schloerke, Ellis Hughes, JooYoung Seo, RStudio.]. Tom's blog was inspired by the work of J. A. Schwabish (2020). Tom's tutorial reproduced here, contains minor changes to Tom Mock's code. Some of Tom's code has been deprecated and I introduce other minor changes to Tom's code, including accessing the Tidy Tuesday data source as a csv file and importing the data set directly with the {*readr*} package. Otherwise, the material is close to a *verbatim* reproduction of Tom's tutorial.
+Tom Mock published a tutorial in *The* blog demonstrating the *gt* package[^1]. Tom's blog was inspired by the work of J. A. Schwabish (2020). Tom's tutorial reproduced here, contains minor changes to Tom Mock's code. Some of Tom's code has been deprecated and I introduce other minor changes to Tom's code, including accessing the Tidy Tuesday data source as a csv file and importing the data set directly with the {*readr*} package. Otherwise, the material is close to a *verbatim* reproduction of Tom's tutorial.
+
+[^1]: Developed by Richard Iannone, Joe Cheng, Barret Schloerke, Ellis Hughes, JooYoung Seo, RStudio.
 
 Complementing *The Mockup* tutorial on creating tables in R with the *gt* package, David Keyes of *RfortheRestofUs* created a YouTube tutorial [Making high-quality tables in R with the gt package: a conversation with Tom Mock.](https://www.youtube.com/watch?v=dxDeotwylr8). David's tutorial illustrates how to access the Tidy Tuesday data sets. Tom Mock's tutorial references the Tidy Tuesday data set but does not explain how to retrieve the data. Keyes' tutorial discusses Mock's code and the table guidelines introduced by J.A. Schwabish.
 
@@ -39,9 +41,9 @@ Complementing *The Mockup* tutorial on creating tables in R with the *gt* packag
 
 Schwabish, J. A. (2020). Ten Guidelines for Better Tables. Journal of Benefit-Cost Analysis, 11(2), 151--178. https://doi.org/10.1017/bca.2020.11
 
-![Table Parts \@jschwabish, 2020](images/table_parts.jpg)[^1] Figure 1. Table Parts (Schwabish, 2020)
+![Table Parts \@jschwabish, 2020](images/table_parts.jpg)[^2] Figure 1. Table Parts (Schwabish, 2020)
 
-[^1]: @jschwabish Tweet Aug 3, 2020
+[^2]: @jschwabish Tweet Aug 3, 2020
 
 [click here for the Rstudio *gt* site](https://gt.rstudio.com/)
 
@@ -155,12 +157,12 @@ rule1_good <- potato_tb %>%
 rule1_good
 ```
 
-### Rule 2: Use subtle Dividers rathen than heavy gridlines
+### Rule 2: Use subtle Dividers rather than heavy gridlines
 
 -   tab_style()\
--   see stackoverflow to conditionally fill tab_style[^2]
+-   see stackoverflow to conditionally fill tab_style[^3]
 
-[^2]: https://stackoverflow.com/questions/63944953/how-to-conditionally-format-a-cell-in-a-gt-table-based-on-the-value-of-the-cel
+[^3]: https://stackoverflow.com/questions/63944953/how-to-conditionally-format-a-cell-in-a-gt-table-based-on-the-value-of-the-cel
 
 ```{r subtle_dividers}
 
@@ -494,9 +496,9 @@ rule6_tb1 %>%
 
 We can try to align left for examples that ALL have the same range (i.e. all in the 10's) as the numbers will align properly, although variation in the units can again mess up the alignment.
 
-[Format values as a percentage is not working](https://gt.rstudio.com/reference/fmt_percent.html)[^3]
+[Format values as a percentage is not working](https://gt.rstudio.com/reference/fmt_percent.html)[^4]
 
-[^3]: Not working because the data source is a table and not a data frame
+[^4]: Not working because the data source is a table and not a data frame
 
 ```{r}
 rule6_tb1 %>% 

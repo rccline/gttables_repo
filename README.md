@@ -6,5 +6,7 @@ This repository is designed to document the tutorials and scripting with Rich Ia
 
 2. The second tutorial on the {*gt*} package was presented by Rich Iannone on March 30, 2022, on YouTube channel *Posit PBC* entitled [Rich Iannone || {gt} Intendo Game Data Project Walkthrough || RStudio](https://www.youtube.com/watch?v=aPRVzk9pvno)  
 
+3. Third tutorial on {*gt*} package was presented by Rich Iannone on June 3, 2022 covering new features in version 0.6.0 on the  YouTube channel *Posit PBC* entitled [Rich Iannone || New features in {gt} 0.6.0! || RStudio](https://www.youtube.com/watch?v=F5TV9uWCJps)
+
 Robert Cline
 *rccline@fastmail.fm*

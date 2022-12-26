@@ -1,0 +1,239 @@
+---
+title: "New features in {gt} 0.7.0"
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+editor: visual
+# format: docx
+execute: 
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(gt)
+library(lubridate)
+```
+
+### [New functions in {gt} version 0.7.0](https://www.youtube.com/watch?v=QbcAX3ayyzk)
+
+[gt issues](https://github.com/rstudio/gt/issues)  
+
+{*gt*} version 0.7.0 includes the following changes:  
+
+* **opt_stylize()**  
+* **tab_step_indent()**  
+* **vec_fmt_duration()**
+
+
+### 1. *opt_stylize(style = 6, color = "cyan")*  
+
+```{r}
+exibble %>% 
+  gt(rowname_col = "row", groupname_col = "group") %>% 
+  summary_rows(
+    groups = "grp_a",
+    columns = c(num, currency),
+    fns = list(
+      min = ~min(., na.rm = TRUE),
+      max = ~max(., na.rm = TRUE),
+      sum = ~sum(., na.rm = TRUE)
+    )
+  ) %>% 
+  
+  grand_summary_rows(
+    columns = currency,
+    fns = list(
+      total = ~sum(., na.rm = TRUE)
+    )) %>% 
+  
+  tab_source_note(source_note = "This is a source note.") %>% 
+  
+  tab_footnote(
+    footnote = "This is a footnote.",
+    locations = cells_body(columns = 1, rows = 1)
+  ) %>% 
+  
+  tab_header(
+    title = "The title of the table",
+    subtitle = "The table's subtitle"
+  ) %>% 
+  
+  opt_stylize(style = 6, color = "cyan")
+  
+```
+
+
+### 2. *tab_step_indent()* 
+
+```{r}
+
+dplyr::bind_rows(
+  pizzaplace %>% 
+    group_by(type, size) %>% 
+               summarize(
+                 sold = n(), 
+                 income = sum(price),
+                 .groups = "drop_last"
+               ) %>% 
+    summarize(
+      sold = sum(sold),
+      income = sum(income),
+      size = "All Sizes",
+      .groups = "drop"
+    ),
+  pizzaplace %>% 
+    group_by(type, size) %>% 
+    summarize(
+      sold = n(),
+      income = sum(price), 
+      .groups = "drop"
+    )) %>% 
+    
+    gt(rowname_col = "size", groupname_col = "type") %>% 
+    
+    tab_header(title = "Pizzas Sold in 2015") %>% 
+    
+    fmt_number(
+      columns = sold,
+      decimals = 0,
+      use_seps = TRUE
+    ) %>% 
+    
+    fmt_currency(
+      columns = income, 
+      currency = "USD"
+    ) %>% 
+    
+    tab_options(
+      summary_row.background.color = "#ACEACE",
+      row_group.background.color = "#FFEFDB", 
+      row_group.as_column = TRUE
+    ) %>% 
+    
+    tab_stub_indent(
+      rows = matches("^L|^M|^S|^XL|^XXL"),
+      indent = 2
+    ) %>% 
+  
+    tab_style(
+      style = cell_fill(color = "gray95"),
+      locations = list(
+        cells_body(rows = matches("^ALL")),
+        cells_stub(rows = matches("^ALL"))
+      )
+    )
+  
+   
+```
+
+### New function *fmt_duration*  
+
+* **duration_values** 
+* allows you to format *numerical values* or *diff_time values* 
+
+```{r}
+sp500 %>% 
+  slice_head(n = 10) %>% 
+  mutate(
+    time_point = lubridate::ymd("2020-03-30"),
+    time_passed = difftime(time_point, date)
+  ) %>% 
+  
+  select(time_passed, open, close) %>% 
+  
+  gt(rowname_col = "month") %>% 
+  
+  fmt_duration(
+    columns = time_passed,
+    output_units = "days",
+    duration_style = "wide"
+  ) %>% 
+  
+  fmt_currency(columns = c(open, close))
+
+```
+
+### Examples of formatting different times  
+
+* *vec_fmt_duration()*
+```{r}
+
+difftimes <- 
+  difftime(
+    lubridate::ymd("2007-01-15"),
+    lubridate::ymd(c("2015-06-25", "2016-03-07", "2017-01-10"))
+  )
+
+difftimes
+vec_fmt_duration(difftimes)
+vec_fmt_duration(difftimes, output_units = "days")
+
+num_vals <- c(3.235, 0.23, 0.005, NA)
+vec_fmt_duration(num_vals, input_units = "days")
+vec_fmt_duration(
+  num_vals,
+  input_units = "days",
+  output_units = c("hours", "minutes")
+)  
+
+vec_fmt_duration(
+  num_vals,
+  input_units = "days",
+  duration_style = "wide"
+)
+
+vec_fmt_duration(
+  num_vals,
+  input_units = "days",
+  duration_style = "wide",
+  locale = "nl"
+)
+
+
+```
+
+```{r eval=TRUE}
+knitr::knit_exit()
+```
+
+```{r}
+sp500_table <- sp500 %>% 
+  slice_head(n = 10) %>% 
+  mutate(
+    time_point = lubridate::ymd("2020-03-30"),
+    time_passed = difftime(time_point, date)
+  ) %>% 
+  
+  select(time_passed, open, close) %>% 
+  
+  gt(rowname_col = "month") %>% 
+  
+  fmt_duration(
+    columns = time_passed,
+    output_units = "days",
+    duration_style = "wide"
+  ) %>% 
+  
+  fmt_currency(columns = c(open, close)) 
+
+
+
+```
+
+
+#### *gtsave()*  
+```{r eval=FALSE}
+gtsave(
+  sp500_table,
+  filename = here("images/sp500-table.png"))
+
+gtsave(
+  sp500_table,
+  filename = here("docx/sp500-table.docx")) # or pdf, jpg etc  
+```
+

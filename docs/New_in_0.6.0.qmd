@@ -1,0 +1,226 @@
+---
+title: "New features in {gt} 0.6.0"
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+editor: visual
+execute: 
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(gt)
+```
+
+### New functions in {gt} version 0.6.0
+
+This is from a YouTube tutorial on \[Posit PBC channel: Rich Iannone \|\| New features in {gt} 0.6.0! \|\| RStudio\]l(https://www.youtube.com/watch?v=F5TV9uWCJps)
+
+-   `sub_missing()` *nee* `fmt_missing`\
+-   `sub_zero()`\
+-   `sub_small_vals()`\
+-   `sub_large_vals()`
+
+### 1. Replace Missing Values
+
+-   `fmt_missing()` is now `sub_missing()`
+-   Default value for missing_text is ---\
+-   sub_missing( *columns = 1:2, missing_text = emo::ji("clock")* )
+
+```{r}
+exibble %>% 
+  select(-row, -group) %>% 
+  gt() %>% 
+  sub_missing(
+    columns = 1:2,
+    missing_text = "missing"
+  ) %>% 
+  sub_missing(
+    columns = 4:7,
+    missing_text = "nothing"
+  )
+  
+```
+
+### 2. sub_zero()
+
+-   replace zeros\
+-   default value is *nil*
+
+Using default value for `sub_zer0()`
+
+```{r}
+tbl <- dplyr::tibble(num = c(10^(-1:2), 0, 0, 10^(4:6)))
+
+tbl %>% 
+  gt() %>% 
+  fmt_number(columns = num) %>% 
+  sub_zero()
+```
+
+#### Substitute text for Zero
+
+```{r}
+tbl <- dplyr::tibble(num = c(10^(-1:2), 0, 0, 10^(4:6)))
+
+tbl %>% 
+  gt() %>% 
+  fmt_number(columns = num) %>% 
+  sub_zero(zero_text = md("**_zero_**"))
+```
+
+### 3. sub_small_vals()
+
+-   default value is 0.01; replaces small value with \<0.01\
+-   i.e. default value =
+    -   `sub_small_vals(small_pattern ="<{x}")`
+
+#### Table with default `sub_small_vals()`
+
+```{r}
+tbl2 <- tibble(num = c(10^(-4:2), 0, NA)) 
+
+
+tbl2 %>% 
+  gt() %>% 
+  fmt_number(columns = num) %>% 
+  sub_small_vals() %>% 
+  
+   tab_header(
+    title = md("sub_small_vals() default"),
+    subtitle = md("`sub_small_vals()`")
+  )
+
+
+```
+
+#### Table without modification
+
+```{r}
+tbl2 <- tibble(num = c(10^(-4:2), 0, NA)) 
+
+
+tbl2 %>% 
+  gt() %>% 
+  fmt_number(columns = num) %>% 
+  sub_small_vals(small_pattern = "") %>% 
+  
+   tab_header(
+    title = md("sub_small_vals() default"),
+    subtitle = md('`sub_small_vals(small_pattern = "")`')
+  )
+
+
+
+```
+
+#### Table with modification
+
+-   Change num to -num\
+-   sub_small_vals(small_pattern = "-")
+
+```{r}
+tbl2 <- tibble(num = c(10^(-4:2), 0, NA)) 
+
+
+tbl2 %>% 
+  mutate(num = -num) %>% 
+  gt() %>% 
+  fmt_number(columns = num) %>% 
+  sub_small_vals(small_pattern = "-") %>% 
+  
+   tab_header(
+    title = md("sub_small_vals() with negative numbers"),
+    subtitle = md('`sub_small_vals(small_pattern = "-")`')
+  )
+
+
+
+```
+
+#### Using *sub_small_vals()* designating a threshold to 3 significant figures.
+
+```{r}
+tbl2 %>% 
+  gt() %>% 
+ # fmt_number(columns = num) %>%  
+  
+  # ----Keep three significant figures  ----------------------
+  
+  fmt_number(columns = num, n_sigfig = 3) %>%  
+  
+  sub_small_vals(
+    threshold = 0.0005,
+    small_pattern = "small"
+  ) %>% 
+  
+  tab_header(
+    title = md("**sub_small_vals() with threshold;<br /><br /> num to 3 Significant figures**"),
+    subtitle = md('`sub_small_vals(threshold = 0.0005`,<br /><br />`small_pattern = "small")`')
+  )
+
+```
+
+### 4. Using *sub_large_vals()*
+
+```{r}
+
+tbl3 <- dplyr::tibble(num = c(0, NA, 10^(8:14))) 
+
+tbl3 %>% 
+  gt() %>% 
+  fmt_number(columns = num) %>% 
+  sub_large_vals()  %>% 
+
+ 
+  tab_header(
+    title = md("**sub_large_vals()**"),
+    subtitle = md("default sub_large_vals()")
+  )
+```
+
+#### Negative numbers
+
+```{r}
+
+tbl3 <- dplyr::tibble(num = c(0, NA, 10^(8:14))) 
+
+tbl3 %>% 
+  mutate(num = -num) %>% 
+  gt() %>% 
+  fmt_number(columns = num) %>% 
+  sub_large_vals(sign = "-")  %>% 
+
+ 
+  tab_header(
+    title = md("**sub_large_vals() with negative numbers**"),
+    subtitle = md('default sub_large_vals(sign = "-")')
+  )
+```
+
+#### sub_large_vals() with thresholds
+
+```{r}
+
+
+tbl3 <- dplyr::tibble(num = c(0, NA, 10^(8:14))) 
+
+tbl3 %>% 
+  gt() %>% 
+  fmt_number(columns = num) %>% 
+  sub_large_vals(
+    threshold = 5E10,
+    large_pattern = md("**humongous**")
+  )  %>% 
+
+ 
+  tab_header(
+    title = md("**sub_large_vals() with thresholds**"))
+#   subtitle = md("default sub_large_vals()")
+  
+```

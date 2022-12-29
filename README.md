@@ -13,5 +13,9 @@ This repository is designed to document the tutorials and scripting with Rich Ia
 * *tab_step_indent()*  
 * *vec_fmt_duration()*  
 
+5. Tutorial covering new functions in Rich Iannone's {*gt*} version 0.8.0 published 12/02/2022 [New Features and Serious Upgrades in {gt} 0.8.0](https://posit.co/blog/new-features-upgrades-in-gt-0-8-0/)  
+
+
+
 Robert Cline
 *rccline@fastmail.fm*

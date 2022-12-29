@@ -1,0 +1,67 @@
+---
+title: "New features in {gt} 0.6.0"
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+editor: visual
+# format: docx
+execute: 
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(gt)
+```
+
+### [New functions in {gt} version 0.8.0](https://www.youtube.com/watch?v=QbcAX3ayyzk)
+
+Installed the development version 0.8.0 from GitHub. 
+`devtools::install_github("rstudio/gt")`  
+
+[gt issues](https://github.com/rstudio/gt/issues)
+
+
+
+### 1. New Word Table Output  
+
+```{r}
+gtcars %>% 
+  select(model, year, hp, trq) %>% 
+  slice(1:5) %>% 
+  gt(rowname_col = "model") %>% 
+  tab_stubhead(label = "car") %>% 
+  
+  tab_header(md("**Cars - hp, trw**"))
+```
+
+
+```{r}
+
+gtcars %>% 
+  select(model, year, hp, trq) %>% 
+  slice(1:5) %>% 
+  gt(rowname_col = "model") %>% 
+  tab_stubhead(label = "car") %>% 
+   tab_header(md("**Cars - hp, trw**")) %>% 
+  gtsave(filename = here("docx/some_cars.png"))
+```
+
+```{r}
+
+exibble %>% 
+  gt() %>% 
+  gtsave(here("docx/table.docx"))
+```
+
+```{r}
+
+num_vals <- c(5.2, 8.65, 0, 5.3, NA)
+
+vec_fmt_number(num_vals)
+```
+
